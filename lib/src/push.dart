@@ -81,15 +81,20 @@ class Push {
     return _channel.invokeMethod(_METHOD_OPENNOTIFICATIONSSETTINGS);
   }
 
-  /// 开始推送
+  /// 注册并开始推送
+  /// 如果需要注册的同时绑定账号请传入 [account]
   Future<void> startWork({
     bool enableDebug = false,
+    String account
   }) {
+    var args = <String, dynamic>{
+      _ARGUMENT_KEY_ENABLEDEBUG: enableDebug,
+    };
+
+    if (account != null) args[_ARGUMENT_KEY_ACCOUNT] = account;
     return _channel.invokeMethod(
       _METHOD_STARTWORK,
-      <String, dynamic>{
-        _ARGUMENT_KEY_ENABLEDEBUG: enableDebug,
-      },
+      args,
     );
   }
 

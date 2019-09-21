@@ -152,7 +152,7 @@ public class FakePushPlugin implements MethodCallHandler, PluginRegistry.NewInte
         } catch (PackageManager.NameNotFoundException ignore) {
         }
 
-        XGPushManager.registerPush(registrar.context(), new XGIOperateCallback() {
+        XGIOperateCallback callback = new XGIOperateCallback() {
             @Override
             public void onSuccess(Object data, int flag) {
                 //token在设备卸载重装的时候有可能会变
@@ -171,7 +171,16 @@ public class FakePushPlugin implements MethodCallHandler, PluginRegistry.NewInte
             public void onFail(Object data, int errCode, String msg) {
                 Log.d("TPush", "注册失败，错误码：" + errCode + ",错误信息：" + msg);
             }
-        });
+        };
+
+        if (call.hasArgument(ARGUMENT_KEY_ACCOUNT)) {
+            String account = call.argument(ARGUMENT_KEY_ACCOUNT);
+            XGPushManager.registerPush(registrar.context(), account, callback);
+        } else {
+            XGPushManager.registerPush(registrar.context(), callback);
+        }
+
+
 
         if (registrar.activity() != null) {
             handleNotificationClickedFromIntent(METHOD_ONLAUNCHNOTIFICATION, registrar.activity().getIntent());
@@ -198,6 +207,7 @@ public class FakePushPlugin implements MethodCallHandler, PluginRegistry.NewInte
 
     private void bindAccount(MethodCall call, final Result result) {
         String account = call.argument(ARGUMENT_KEY_ACCOUNT);
+
         XGPushManager.bindAccount(registrar.context(), account, new XGIOperateCallback() {
             @Override
             public void onSuccess(Object data, int flag) {
@@ -206,7 +216,7 @@ public class FakePushPlugin implements MethodCallHandler, PluginRegistry.NewInte
 
             @Override
             public void onFail(Object data, int errCode, String msg) {
-
+                Log.d("TPush", "帐号绑定失败，错误码：" + errCode + ",错误信息：" + msg);
             }
         });
 
